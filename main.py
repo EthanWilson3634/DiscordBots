@@ -34,7 +34,7 @@ class Client(discord.Client):
     
 intents = discord.Intents.default()
 intents.message_content = True
-``
+
 with open("../botkey.txt", "r") as file:
     bot_token = file.read().strip()
 
