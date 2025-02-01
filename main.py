@@ -3,12 +3,19 @@ import asyncio
 import os
 import pyfiglet
 import json
+import time
 
 MEGATRON = pyfiglet.figlet_format("MEGATRON")
 
 AUDIO_COMMAND_MAP_FILE = "audio_command_map.json"
 
 audio_command_map = {}
+
+# Timestamp to track last audio playback
+last_audio_playback_time = 0
+
+# Time threshold in seconds
+AUDIO_PLAYBACK_THRESHOLD = 10
 
 def load_audio_command_map():
     global audio_command_map
@@ -29,8 +36,10 @@ class Client(discord.Client):
         print(f'\nLogged in as {self.user}!\n')
         print(MEGATRON)
         print()
-        
+
     async def on_message(self, message):
+        global last_audio_playback_time
+
         if message.author == self.user:
             return
 
@@ -59,12 +68,20 @@ class Client(discord.Client):
                 return
         
         elif message.content.lower() in audio_command_map:
+            current_time = time.time()
+
+            if current_time - last_audio_playback_time < AUDIO_PLAYBACK_THRESHOLD:
+                await message.channel.send(f"Please wait {AUDIO_PLAYBACK_THRESHOLD - (current_time - last_audio_playback_time):.1f} seconds before playing more audio.")
+                return
+
             if message.author.voice is None:
                 await message.channel.send("Enter a voice channel to play audio")
                 return
             
             voice_channel = message.author.voice.channel
             await self.play_audio_in_channel(voice_channel, audio_command_map[message.content.lower()])
+            
+            last_audio_playback_time = time.time()
         
         ####################################################MEGATRON#####################################################
         if message.content.lower() == "hello megatron":
