@@ -43,19 +43,27 @@ class Client(discord.Client):
         if message.author == self.user:
             return
 
+        # Check if the user requested to list audio commands
+        if message.content.lower() == "megatron list audio commands":
+            if audio_command_map:
+                command_list = "\n".join([f"• {command}" for command in audio_command_map])
+                await message.channel.send(f"Here are the available audio commands:\n{command_list}")
+            else:
+                await message.channel.send("No audio commands have been saved yet.")
+
         if message.content.lower().startswith("save audio"):
             if len(message.attachments) == 1:
                 audio_file = message.attachments[0]
             else:
                 await message.channel.send("Please provide an MP3.")
                 return
-                
+                    
             if audio_file.filename.endswith(".mp3"):
                 audio_path = f"./audio_files/{audio_file.filename}"
                 await audio_file.save(audio_path)
-                
+                    
                 command = message.content.lower().replace("save audio", "").strip()
-                
+                    
                 if command:
                     audio_command_map[command] = audio_path
                     save_audio_command_map()
@@ -82,11 +90,12 @@ class Client(discord.Client):
             await self.play_audio_in_channel(voice_channel, audio_command_map[message.content.lower()])
             
             last_audio_playback_time = time.time()
-        
+
         ####################################################MEGATRON#####################################################
         if message.content.lower() == "hello megatron":
             await message.channel.send('`' + MEGATRON + '`')
         #################################################################################################################
+
 
     async def play_audio_in_channel(self, channel, audio):
         vc = await channel.connect()
