@@ -59,22 +59,16 @@ class Client(discord.Client):
                 return
         
         elif message.content.lower() in audio_command_map:
-            voice_channel = message.author.voice.channel
-            if voice_channel is None:
-                await message.channel.send("Enter a voice channel")
+            if message.author.voice is None:
+                await message.channel.send("Enter a voice channel to play audio")
                 return
-            await self.play_audio_in_channel(message.author.voice.channel, audio_command_map[message.content.lower()])
+            
+            voice_channel = message.author.voice.channel
+            await self.play_audio_in_channel(voice_channel, audio_command_map[message.content.lower()])
         
-        #################################################################################################################
+        ####################################################MEGATRON#####################################################
         if message.content.lower() == "hello megatron":
             await message.channel.send('`' + MEGATRON + '`')
-        #################################################################################################################
-        if message.content.lower() == "discord troll":
-            voice_channel = message.author.voice.channel
-            if voice_channel is None:
-                await message.channel.send("Enter a voice channel")
-                return
-            await self.play_audio_in_channel(message.author.voice.channel, "./audio_files/mikejebait-3.mp3")
         #################################################################################################################
 
     async def play_audio_in_channel(self, channel, audio):
